@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Census</title>
+
+
+
+<!--- LIBRARY INCLUDES - SEE README FILE TO LOCATE THESE FILES --->
+<link rel="stylesheet" href="libs/bootstrap.css" />
+<script src="libs/jquery-1.7.min.js"></script>
+<script src="libs/iscroll-lite.js"></script>
+<script src="libs/highcharts.js"></script>
+<script src="libs/bootstrap-tabs.js"></script>
+<script src="libs/bootstrap-modal.js"></script>
+<script src="libs/jshashtable-2.1.js"></script>
+<script src="libs/jquery.numberformatter-1.2.2.jsmin.js"></script>
+
+
+<!--- APPLICATION INCLUDES --->
+<link rel="stylesheet" href="assets/application.css" />
+<link rel="stylesheet" href="assets/activityIndicator.css" />
+<script src="js/censusVizualizer.js"></script>
+<script src="js/application.js"></script>
+
+</head>
+
+<body>
+
+<div id="page" class="hidden">
+	<div id="sidebar">
+    
+    	<div id="statesContainer">
+            <header>Select A State</header>
+            <div id="stateWrapper">
+                <div id="states">
+                </div>
+            </div>
+        </div>
+        
+    	<div id="countyContainer">
+            <header>Select A County</header>
+            <div id="countyWrapper">
+                <div id="counties">
+                    Please select a state
+                </div>
+            </div>
+        </div>
+	</div>
+
+	<div id="content">
+		<header>Census Data for Selected Region</header>
+		<article id="contentWrapper">
+        
+			<div id="contentScroller">
+        		<div id="contentHeader">
+						To get started, please select a state and county on the left.
+                        
+                </div>
+        		<div id="contentScrollableInstance">
+        				<div id="activeContent"><div style='width:100%; text-align:center'><img src="assets/images/usa.png" /></div></div>
+                </div>
+                <div id="contentFooter" class="hidden">
+                	<ul class="pills">
+                      <li id="population_li"><a href="javascript:controller.showPopulationData()">Population</a></li>
+                      <li id="race_li"><a href="javascript:controller.showRaceData()">Race</a></li>
+                      <li id="household_li"><a href="javascript:controller.showHouseholdData()">Household</a></li>
+                    </ul>
+                </div>
+			</div>
+		</article>
+	</div>
+    
+    
+</div>
+
+<a id="aboutLink" class="btn primary" href="#" data-controls-modal="aboutModal" data-backdrop="static" >About</a>
+
+<div id="aboutModal" class="modal hide fade">
+    <div class="modal-header">
+      <h3>About the 2010 Census Browser</h3>
+    </div>
+    <div class="modal-body">
+      <p>The Census Browser application is a free and soon-to-be open sourced application built using PhoneGap (<a href="http://phonegap.com" target="_blank">http://phonegap.com</a>).  All data used within this application is freely available within the public domain, from http://2010.census.gov.   In particular, this application uses the Demographic Profiles data set.</p>
+      <p>You can read more about this application, and how it was built at <a href="http://www.tricedesigns.com/2010-census/" target="_blank">http://www.tricedesigns.com/2010-census/</a></p>
+    </div>
+    <div class="modal-footer">
+     <a id="btnPrimary" href="javascript:$('#aboutModal').modal('hide');" class="btn danger">OK</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+The US Census Browser is an open source application for browsing data from the 2010 US Census.   All data displayed within the application was obtained from the 2010 Census "Demographic Profiles" data set, available at:
+http://www2.census.gov/census_2010/03-Demographic_Profile/
+
+You can find detailed documentation of the strucuture and content of the Demographic Profile data set at: http://www.census.gov/prod/cen2010/doc/dpsf.pdf
+
+USER LICENSE:
+
+Usage of the The US Census Browser application subject to terms of the Apple Licensed Application End User License Agreement, available at:
+http://www.apple.com/legal/itunes/appstore/dev/stdeula/
+
+SOURCE CODE LICENSE:
+
+The source of the US Census Browser application is available as free and open source, under the terms of the "Modified BSD License": http://en.wikipedia.org/wiki/BSD_license#3-clause_license_.28.22New_BSD_License.22_or_.22Modified_BSD_License.22.29
+
+<blockquote>Copyright 2011 Andrew M. Trice. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of  conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY ANDREW M. TRICE ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ANDREW M. TRICE OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </blockquote>
+
+SOURCE CODE:
+Complete source code for the application is available at: https://github.com/triceam/US-Census-Browser
+Please be sure to read the "README" document in its entirety if you attempt to get any of this code running on your own.
+
+PROJECT ORGANIZATION
+The source code repository contains two folders: one for the client-side code, and one for the server side.   No platform-specific build projects are included in this source code repository, however this codebase can be integrated into phonegap projects following the instructions for each platform, available at: 
+http://phonegap.com/start
+
+CLIENT-SIDE CODE
+All of the client-side application code is developed using HTML, JavaScript, and CSS.   All application-specific code developed by Andrew Trice is included within the source code repository.   ALL external libraries used within the project are not included in this source repository.
+
+The following code libraries/resources were used in this application.   Resources for these libraries should be downloaded and included within the "libs" folder inside of the client source code folder.
+
+Twitter Bootstrap:
+https://github.com/twitter/bootstrap
+file: bootstrap.css
+file: bootstrap-tabs.js
+file: bootstrap-modal.js
+
+jQuery (version 1.7)
+http://code.jquery.com/jquery-1.7.1.min.js
+file: jquery-1.7.1.min.js
+
+iScroll (version 4)
+https://github.com/cubiq/iscroll
+file: iscroll-lite.js
+
+Highcharts (version 2.1.9)
+http://www.highcharts.com/
+http://www.highcharts.com/downloads/zips/Highcharts-2.1.9.zip
+file: highcharts.js
+
+jQuery Number Formatter (v1.2.2)
+http://code.google.com/p/jquery-numberformatter/
+http://code.google.com/p/jquery-numberformatter/downloads/detail?name=jquery.numberformatter-1.2.2.js
+file: jquery.numberformatter-1.2.2.js
+
+jHashTable
+http://code.google.com/p/jshashtable/
+http://code.google.com/p/jshashtable/downloads/detail?name=jshashtable-2.1.js
+file: jshashtable-2.1.js
+
+Also used within this application is the CSS3 approach for a rotating Activity Indicator, as ddemonstrated at: http://css3wizardry.com/2010/09/13/activity-indicator-with-css3/
+
+
+SERVER-SIDE CODE
+Server side code was developed using Adobe ColdFusion, powered by a SQL Server database, containing the data available at: http://www2.census.gov/census_2010/03-Demographic_Profile/
+
+To setup the backend database, I followed instructions available at: http://www2.census.gov/census_2010/03-Demographic_Profile/0FILE_STRUCTURE.doc
+
+You can find detailed documentation of the strucuture and content of the US Census Demographic Profile data set at: http://www.census.gov/prod/cen2010/doc/dpsf.pdf
+
+The first step was to import data into MS Acess, which I then exported to SQL Server for use in the final application.  Note: All source data is contained within 50+ individual DB files which must be imported into Access.
+
+The ColdFusion code for accessing and serializing data is very simple.  Data is retrieved from the back-end using standard queries.   Query data is then serialized to the front-end client as JSON using a technique for conversion of a Query object to an Array of Structs, available on CFLib.org at: http://www.cflib.org/udf/QueryToArrayOfStructures   
+
+By accessing the CFC directly, and chosing the result format=json, the CFC function result automaticaully gets serialized as a JSON array, as shown by the link at: http://tricedesigns.com/com/tricedesigns/census/Services.cfc?method=getStateCounties&state=MD&returnformat=json
+
+
+PHONEGAP USAGE
+The client-side runtime does not have any PhoneGap dependencies for access to device-specific functionality.  PhoneGap is only being used as an application container, so that the application can be distributed through various mobile "app stores".
+
+"IN THE WILD"
+The application is currently available in several application ecosystems:
+
+Apple iTunes: http://itunes.apple.com/us/app/census-browser/id483201717
+Google Android: https://market.android.com/details?id=com.tricedesigns.CensusBrowser
+
+Support for additional platforms is planned for future development.
