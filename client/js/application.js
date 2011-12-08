@@ -7,7 +7,6 @@ function ApplicationController() {
 	this.serviceBase = "/path/to/my/cfc/ServicesDEBUG.cfc";
 	this.mapKey = "your google maps key";
 	
-	
 	this.states = [];
 	this.activeState = null;
 	this.counties = [];

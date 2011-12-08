@@ -49,10 +49,11 @@ iScroll (version 4)
 https://github.com/cubiq/iscroll
 file: iscroll-lite.js
 
-Highcharts (version 2.1.9)
+Highcharts (version 1.2.5)
 http://www.highcharts.com/
-http://www.highcharts.com/downloads/zips/Highcharts-2.1.9.zip
+http://highcharts.com/js/1.2.5/
 file: highcharts.js
+*** FOR ANDROID 2.x, you must use Highcharts 1.2.5
 
 jQuery Number Formatter (v1.2.2)
 http://code.google.com/p/jquery-numberformatter/

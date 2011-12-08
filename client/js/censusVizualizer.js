@@ -1,6 +1,8 @@
 function  CensusVisualizer() {
 	this.populationCategories  = [ 'Under 5', '5 to 9', '10 to 14', '15 to 19', '20 to 24', '25 to 29', '30 to 34', '35 to 39',  
 								  '40 to 44', '45 to 49', '50 to 54', '55 to 59', '60 to 64', '65 to 69', '70 to 74', '75 to 79', '80 to 84', '85 over' ];
+	this.populationCategoriesCondensed  = [ '-5', '-9', '-14', '-19', '-24', '-29', '-34', '-39',  
+								  '-44', '-49', '-54', '-59', '-64', '-69', '-74', '-79', '-84', '85+' ];
 						
 	this.populationTotalDataFormat = [ "dpsf0010002", "dpsf0010003", "dpsf0010004", "dpsf0010005", "dpsf0010006", "dpsf0010007", "dpsf0010008", 
 									  "dpsf0010009", "dpsf0010010", "dpsf0010011", "dpsf0010012", "dpsf0010013", "dpsf0010014", "dpsf0010015", 
@@ -74,7 +76,9 @@ CensusVisualizer.prototype.formatDataForPieChart = function(data, categoryArray,
 
 CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 	
-	var colors = Highcharts.getOptions().colors;
+	//var colors = Highcharts.getOptions().colors;
+	var colors = Highcharts.defaultOptions.colors;
+	
 	var targetHeight = target.parent().height();
 	var totalChartData = this.formatDataForChart( data, this.populationTotalDataFormat );
 	var maleChartData = this.formatDataForChart( data, this.populationMaleDataFormat, true );
@@ -103,7 +107,7 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 						text: 'source: 2010.census.gov'
 					},
 					xAxis: {
-						categories: this.populationCategories
+						categories: this.populationCategoriesCondensed
 					},
 					yAxis: {
 						min: 0,
@@ -142,6 +146,26 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 					}]
 				});
 				
+	var max = 0;
+	for (var x=0; x<maleChartData.length; x++ )
+	{
+		max = Math.max( Math.abs(maleChartData[x]), max );
+	}
+	for (var x=0; x<femaleChartData.length; x++ )
+	{
+		max = Math.max( Math.abs(femaleChartData[x]), max );
+	}
+	
+	
+	var min = -max;
+	
+	
+	for (var x=0; x<maleChartData.length; x++ )
+	{
+		maleChartData[x] = maleChartData[x] - femaleChartData[x];
+	}
+	
+				
 	chart = new Highcharts.Chart({
 					chart: {
 						renderTo: 'sexesContainer',
@@ -166,17 +190,15 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 							formatter: function(){
 								return (Math.abs(this.value) / 1000) + 'K';
 							}
-						}
+						},
+						min:min,
+						max:max
 					},
 					legend: {
-						layout: 'vertical',
+						layout: 'hoirzontal',
 						backgroundColor: '#FFFFFF',
 						align: 'left',
-						verticalAlign: 'top',
-						x: $("#sexesContainer").width()-105,
-						y: 0,
-						floating: true,
-						shadow: true
+						enabled:false
 					},
 					
 					plotOptions: {
@@ -188,8 +210,7 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 					
 					tooltip: {
 						formatter: function(){
-							return '<b>'+ this.series.name +', age '+ this.point.category +'</b><br/>'+
-								 'Population: '+ Highcharts.numberFormat(Math.abs(this.point.y), 0);
+							return '<b>'+ this.series.name +', age '+ this.point.category;
 						}
 					},
 					
@@ -208,7 +229,8 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 	
 	var targetHeight = target.parent().height();
 	
-	var colors = Highcharts.getOptions().colors;
+	//var colors = Highcharts.getOptions().colors;
+	var colors = Highcharts.defaultOptions.colors;
 	var name = 'Population By Race';
 				
 	var innerCircleRawData = this.formatDataForChart( data, this.raceMajorDataFormat );
@@ -254,7 +276,7 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 				chart = new Highcharts.Chart({
 					chart: {
 						renderTo: 'chartContainer', 
-						type: 'pie'
+						defaultSeriesType: 'pie'
 					},
 					title: {
 						text: 'Population By Ethnicity/Race'
@@ -266,8 +288,22 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 					},
 					plotOptions: {
 						pie: {
+							allowPointSelect: false,
+							cursor: 'pointer',
 							animation:false,
-							shadow: false
+							dataLabels: {
+								enabled: true,
+								color: '#000000',
+								connectorColor: '#000000',
+								formatter: function() {
+									return '<b>'+ this.point.name +'</b><br/>'+ $.formatNumber(this.y, {format:"#,###", locale:"us"})  + '<br/>'+ $.formatNumber(this.percentage, {format:"#.00", locale:"us"})  +' %';
+								}
+							}
+						}
+					},
+					legend: {
+						labelFormatter: function() {
+							return this.tooltipText
 						}
 					},
 					tooltip: {
@@ -278,23 +314,12 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 					series: [{
 						name: 'Major Race Classification',
 						data: innerCircleData,
-						size: '25%',
 						dataLabels: {
 							formatter: function() {
 								return this.point.category;
 							},
 							color: 'black',
 							distance: 5
-						}
-					}, {
-						name: 'Minor Race Classification',
-						data: outterCircleData,
-						innerSize: '60%',
-						dataLabels: {
-							formatter: function() {
-								return  '<b>'+ this.point.category +':</b> '+ $.formatNumber(this.y, {format:"#,###", locale:"us"});
-							},
-							distance: 40
 						}
 					}]
 				});
@@ -381,8 +406,7 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 								formatter: function() {
 									return '<b>'+ this.point.name +'</b><br/>'+ $.formatNumber(this.y, {format:"#,###", locale:"us"})  + '<br/>'+ $.formatNumber(this.percentage, {format:"#.00", locale:"us"})  +' %';
 								}
-							},
-            				size: "40%"
+							}
 						}
 					},
 				    series: [{
@@ -419,13 +443,12 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 								formatter: function() {
 									return "<b>"+ this.point.name + "</b><br/>" + $.formatNumber(this.percentage, {format:"#.00", locale:"us"}) + " %";
 								}
-							},
-            				size: "40%"
+							}
 						}
 					},
 				    series: [{
 						type: 'pie',
-						name: 'Browser share',
+						name: 'Family Households',
 						data: this.formatDataForPieChart( data, this.familyHouseholdMajorCategories, this.familyHouseholdDataFormat )
 					}]
 				});
