@@ -311,12 +311,12 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 	tableHTML += "<tr><th style='padding-left:00px;'>Total Households</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130001, {format:"#,###", locale:"us"})  + "</td></tr>";	
 	tableHTML += "<tr><th style='padding-left:40px;'>	Family households (families)</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130002, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:80px;'>		With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130003, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:40px;'>    Husband-wife family</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130004, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:80px;'>    	With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130005, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:40px;'>    Male householder, no wife present</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130006, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:80px;'>    	With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130007, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:40px;'>    Female householder, no husband present</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130008, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:80px;'>    	With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130009, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:80px;'>    	Husband-wife family</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130004, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:120px;'>    		With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130005, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:80px;'>    	Male householder, no wife present</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130006, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:120px;'>    		With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130007, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:80px;'>   	 Female householder, no husband present</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130008, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:120px;'>    		With own children under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130009, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:40px;'>   	Nonfamily households</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130010, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:80px;'>    	Householder living alone</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130011, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Male</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130012, {format:"#,###", locale:"us"}) + "</td></tr>";
@@ -340,7 +340,7 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 	tableHTML += "<tr><th style='padding-left:80px;'>   	In group quarters</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120014, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:80px;'>		Institutionalized population</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120015, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Male</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120016, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:60px;'>     		Female</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120017, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:120px;'>     		Female</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120017, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:80px;'>    	Noninstitutionalized population</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120018, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Male</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120019, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Female</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120020, {format:"#,###", locale:"us"}) + "</td></tr>";
