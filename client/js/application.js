@@ -3,9 +3,9 @@
 
 function ApplicationController() {
 	/* YOUR CONFIG VARIABLES HERE */
-	this.serverRoot = "http://myserver.com";
-	this.serviceBase = "/path/to/my/cfc/ServicesDEBUG.cfc";
-	this.mapKey = "your google maps key";
+	this.serverRoot = "http://your server";
+	this.serviceBase = "path/to/Services.cfc";
+	this.mapKey = "ABQIAAAAXjVXn0An0pUKzNWtB0K0ZxSEFrceJ9hFxzpuRIy1GzUBCsWR3xTi1ogOxu49s_A4IIH2Fu-a6BjrUQ";
 	
 	
 	this.states = [];
@@ -13,7 +13,7 @@ function ApplicationController() {
 	this.counties = [];
 	this.activeCounty = null;
 	this.activeCountyDetails = null;
-	this.activeDataView = null;
+	this.activeDataView = "population";
 }
 
 
@@ -23,7 +23,6 @@ ApplicationController.prototype.init = function() {
 
 ApplicationController.prototype.loadStates = function() {
 	
-	$("#states").html( "<div class='activityIndicator'></div>" );
 	$.ajax({
 	  url: this.serverRoot + this.serviceBase + "?method=getStates&returnformat=json",
 	  success: this.onStatesLoaded,
@@ -107,9 +106,13 @@ ApplicationController.prototype.selectState = function(event, state) {
 	$(event.target).addClass('listSelected');
 	
 	this.getStateCounties( state );
-	$("#counties").html( "<div class='activityIndicator'></div>" );
-	if ( this.countyScroller )
-			this.countyScroller.scrollTo(0,0, 300);
+	
+	var countiesView = {
+		backLabel: "States",
+		title: "Select County",
+		view: $('<div id="counties"><div class="activityIndicator"></div></div>')
+	};
+	window.splitViewNavigator.pushSidebarView( countiesView );
 }
 
 ApplicationController.prototype.renderStates = function() {
@@ -121,10 +124,7 @@ ApplicationController.prototype.renderStates = function() {
 	}
 	html += "</ul>";
 	$("#states").html( html );
-	if ( this.stateScroller != null )
-		this.stateScroller.refresh();
-	else
-		this.stateScroller = new iScroll('stateWrapper');
+	window.splitViewNavigator.sidebarViewNavigator.resetScroller();
 }
 
 
@@ -137,10 +137,7 @@ ApplicationController.prototype.renderCounties = function() {
 	}
 	html += "</ul>";
 	$("#counties").html( html );
-	if ( this.countyScroller != null )
-		this.countyScroller.refresh();
-	else
-		this.countyScroller = new iScroll('countyWrapper');
+	window.splitViewNavigator.sidebarViewNavigator.resetScroller();
 }
 
 
@@ -152,7 +149,12 @@ ApplicationController.prototype.selectCounty = function(event, countyIndex) {
 	var county = this.counties[countyIndex];
 	this.activeCounty = county;
 	this.renderContent( true );
-	this.getCountyDetails( county.stusab, county.county );
+	
+	var self = this;
+	//use a delay to allow for a smooth transition before requesting data
+	setTimeout( function() { 
+		self.getCountyDetails( county.stusab, county.county );
+		}, 350);
 }
 
 ApplicationController.prototype.renderContent = function(loading) {
@@ -161,57 +163,117 @@ ApplicationController.prototype.renderContent = function(loading) {
 	
 	if( loading )
 	{
-		var mapURL = "http://maps.google.com/maps/api/staticmap?center=" + this.activeCounty.intptlat + "," + this.activeCounty.intptlon + "&zoom=8&size=200x84&maptype=roadmap&key=" + this.mapKey + "&sensor=true";
-                         
+		//$("#activeContent").unbind( "resize" );
 		
-		html += "<div>";
+		//var mapURL = "http://maps.google.com/maps/api/staticmap?center=" + this.activeCounty.intptlat + "," + this.activeCounty.intptlon + "&zoom=8&size=200x84&maptype=roadmap&key=" + this.mapKey + "&sensor=true";
+		var mapURL = "http://staticmap.openstreetmap.de/staticmap.php?center=" + this.activeCounty.intptlat + "," + this.activeCounty.intptlon + "&zoom=8&size=200x84&maptype=mapnik";
+      
+		html += "<div style='min-width:100%;min-height:100%'><div style='padding:10px;background:rgba(255,255,255,1)'>";
 		html += "<img align='right' style='border: 1px solid #999999' src=\"" + mapURL + "\" />";
 		html += "<h1>" + this.activeCounty.name + ", " + this.activeCounty.stusab + "</h1>";
 		html += "<strong>Population:</strong> " + $.formatNumber(this.activeCounty.pop100, {format:"#,###", locale:"us"}) + "<br/>";
 		html += "<strong>Approx. Location:</strong> " + this.activeCounty.intptlat + "," + this.activeCounty.intptlon;
+		
+		html += '	<div class="btn-group" data-toggle="buttons-radio" style="padding-top:10px;">';
+		html += '	  <button class="btn ' + (this.activeDataView == "population" ? 'active' : '') + '" data-toggle="button" onclick="javascript:controller.showPopulationData()">Age Profile</button>';
+		html += '	  <button class="btn ' + (this.activeDataView == "race" ? 'active' : '') + '" data-toggle="button" onclick="javascript:controller.showRaceData()">Racial Profile</button>';
+		html += '	  <button class="btn ' + (this.activeDataView == "household" ? 'active' : '') + '" data-toggle="button" onclick="javascript:controller.showHouseholdData()">Household</button>';
+		html += '	  <button class="btn ' + (this.activeDataView == "map" ? 'active' : '') + '" data-toggle="button" onclick="javascript:controller.showMapDataView()">Interactive Map</button>';
+		html += '	</div></div>';
+		html += '	<div id="activeContent"><div class="activityIndicator"></div></div>';
 		html += "</div>";
 		
-		$("#contentHeader").html( html );
-		$("#activeContent").html( "<div class='activityIndicator'></div>" );
-		$("#contentFooter").addClass( "hidden" );
+		this.contentView = { 
+			title: "Census Data for " + this.activeCounty.name + ", " + this.activeCounty.stusab,
+			view: $(html),
+			scroll: false,
+			backLabel: this.lastAction
+		}
+		
+		window.splitViewNavigator.replaceBodyView( this.contentView );
+		window.splitViewNavigator.hideSidebar();
+		
+		//this is to correct a bug in highcharts that causes charts to render at the wrong size when changing device orientation
+		/*
+		var self = this;
+		clearTimeout( window.renderContentTimeout );
+		$("#activeContent").bind( "resize", function (event){ 
+			
+			try {
+				window.renderContentTimeout = setTimeout( 
+					function() { 
+						//alert();
+						self.renderContent() 
+					}
+				, 50)
+			}
+			catch(e) { 
+				alert( e.toString() );
+			}
+		});*/
+		
+		//$("#contentHeader").html( html );
+		//$("#activeContent").html( "<div class='activityIndicator'></div>" );
+		//$("#contentFooter").addClass( "hidden" );
 	}
 	
 	//render data
 	else
 	{
-		$("#contentFooter").removeClass( "hidden" );
+		//$("#contentFooter").removeClass( "hidden" );
 		var detail = this.activeCountyDetails[ 0 ];
 		
-		switch( this.activeDataView )
-		{
-			case "race":
-				censusVisualizer.renderRaceData( $("#activeContent"), detail );
-				$("#population_li").removeClass( "active" );
-				$("#race_li").addClass( "active" );
-				$("#household_li").removeClass( "active" );
-				break;
-			case "household":
-				censusVisualizer.renderHouseholdData( $("#activeContent"), detail );
-				$("#population_li").removeClass( "active" );
-				$("#race_li").removeClass( "active" );
-				$("#household_li").addClass( "active" );
-				break;
-			default:
-				censusVisualizer.renderPopulationData( $("#activeContent"), detail );
-				$("#population_li").addClass( "active" );
-				$("#race_li").removeClass( "active" );
-				$("#household_li").removeClass( "active" );
-				break;	
+		//console.log( this.activeCounty, detail.county );
+		if ( this.activeCounty != detail.county ) {
+			return;
 		}
 		
+		this.contentView.view.css( "height", "auto" ); 
+		var activeContent = $("#activeContent");
+		activeContent.css( "height", "auto" );
+		
+		try {
+			switch( this.activeDataView )
+			{
+				case "race":
+					censusVisualizer.renderRaceData( activeContent, detail );
+					break;
+					
+				case "household":
+					censusVisualizer.renderHouseholdData( activeContent, detail );
+					break;
+					
+				case "map":
+					this.contentView.view.css( "height", "100%" );
+					activeContent.css( "height", "100%" );
+					activeContent.html( '<div id="map" ></div>' );
+					
+					map = new OpenLayers.Map({
+						div: "map"
+					});
+	
+					var osm = new OpenLayers.Layer.OSM();
+					map.addLayers([osm]);
+					//map.zoomToMaxExtent();
+					//console.log( this.activeCounty, detail.intptlat, detail.intptlon );
+					
+					var lonlat = new OpenLayers.LonLat( detail.intptlon, detail.intptlat );
+					lonlat.transform( new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject() );
+					map.setCenter( lonlat, 11 );
+					
+					break;
+				default:
+					censusVisualizer.renderPopulationData( activeContent, detail );
+					break;	
+			}
+			
+			window.splitViewNavigator.bodyViewNavigator.resetScroller();
+		}
+		catch( e ) {
+			alert( e.toString() );
+		}
 	}
-
-	if ( this.scrollContent != null ) {
-		this.scrollContent.refresh();
-		this.scrollContent.scrollTo(0,0,300);
-	}
-	else
-		this.scrollContent = new iScroll('contentScrollableInstance');
+		
 }
 
 ApplicationController.prototype.showPopulationData = function() {
@@ -229,6 +291,11 @@ ApplicationController.prototype.showHouseholdData = function() {
 	this.renderContent();
 }
 
+ApplicationController.prototype.showMapDataView = function() {
+	this.activeDataView = "map";
+	this.renderContent();
+}
+
 ApplicationController.prototype.showAboutDetail = function() {
 	alert("about");
 }
@@ -236,11 +303,35 @@ ApplicationController.prototype.showAboutDetail = function() {
 
 
 var controller = new ApplicationController();
-
+var statesView = {
+		title: "Select State",
+		view: $('<div id="states"><div class="activityIndicator"></div></div>')
+	};
+var bodyView = {
+		title: "US Census Browser",
+		view: $('<div width="100%" height="100%" class="defaultView"><div class="alert alert-block" style="position: absolute; top:25px; left:25px; right:25px"><h2>' + 
+						'Please select a state and county to begin.' + 
+                '</h2></div><div id="copyright">&copy; 2012 Andrew Trice</div>' + 
+                '<div id="dataDisclaimer">Data Available from U.S. Census Department</div></div>')
+	};
+	
 
 $(document).ready(function() {
 	
 	$(document).bind( "touchmove", function (e) { e.preventDefault(); return false; } );
-	controller.init();
-	$('#page').removeClass("hidden");
+	
+	//adding delay actually makes the app start faster, and enables loading animation to be displayed
+	setTimeout( function() { controller.init(); } , 100 );
+	
+	bodyView.view.click( function(event) { 
+		window.splitViewNavigator.showSidebar(); 
+	});
+	
+	//Setup the ViewNavigator
+	new SplitViewNavigator( '#pageContent', "Select Region", "btn btn-inverse" );	
+	window.splitViewNavigator.pushSidebarView( statesView );
+	window.splitViewNavigator.pushBodyView( bodyView );
+	window.splitViewNavigator.showSidebar();
 });
+
+

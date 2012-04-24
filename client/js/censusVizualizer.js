@@ -1,3 +1,5 @@
+
+
 function  CensusVisualizer() {
 	this.populationCategories  = [ 'Under 5', '5 to 9', '10 to 14', '15 to 19', '20 to 24', '25 to 29', '30 to 34', '35 to 39',  
 								  '40 to 44', '45 to 49', '50 to 54', '55 to 59', '60 to 64', '65 to 69', '70 to 74', '75 to 79', '80 to 84', '85 over' ];
@@ -21,8 +23,8 @@ function  CensusVisualizer() {
 	this.raceMinorCategories = [ "White", "Afr. Amer.", "Native Amer.", 
 								 "Asian Indian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese", "Other Asian",
 								 "Native Hawaiian", "Guamanian or Chamorro", "Samoan", "Other Pacific Islander",  
-								 "multiracial, mixed, interracial, or a Hispanic, Latino, or Spanish, etc...", 
-								 "White; American Indian and Alaska Native", "White; Asian", "White; Black or African American", "White; Some Other Race", "Other"];
+								 "Multiracial or a Hispanic/Latino", 
+								 "White; Amer. Ind. and AK Native", "White; Asian", "White; African American", "White; Other", "Other"];
 	this.raceMinorDataFormat = [ "dpsf0080003", "dpsf0080004", "dpsf0080005",
 								 "dpsf0080007", "dpsf0080008", "dpsf0080009", "dpsf0080010", "dpsf0080011", "dpsf0080012", "dpsf0080013",  
 								 "dpsf0080015", "dpsf0080016", "dpsf0080017", "dpsf0080018", 
@@ -39,7 +41,7 @@ function  CensusVisualizer() {
 								   1, 
 								   5];
 	
-	this.householdMajorCategories = ["Family households", "Non-family households"];
+	this.householdMajorCategories = ["Family", "Non-family"];
 	this.householdDataFormat = ["dpsf0130002","dpsf0130010"];
 	
 	this.familyHouseholdMajorCategories = ["Married", "Male, no wife", "Female, no husband"];
@@ -74,46 +76,102 @@ CensusVisualizer.prototype.formatDataForPieChart = function(data, categoryArray,
 
 CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 	
-	var colors = Highcharts.getOptions().colors;
-	var targetHeight = target.parent().height();
+	
+	var colors = ["#0066FF", "#EE3366"];
+	var border = 0;
+	var borderColor = "#BBB";
+	
+	var targetHeight = 500;
 	var totalChartData = this.formatDataForChart( data, this.populationTotalDataFormat );
 	var maleChartData = this.formatDataForChart( data, this.populationMaleDataFormat, true );
 	var femaleChartData = this.formatDataForChart( data, this.populationFemaleDataFormat );
 	
 	var tableHTML = "<tr><th></th><th style='text-align:right'>Total</th><th style='color:" + colors[0] + "; text-align:right'>Male</th><th style='color:" + colors[1] + "; text-align:right'>Female</th></tr>";
+	var chartMax = 0;
 	
 	for ( var x = 0; x < this.populationCategories.length; x ++ )
 	{
 		tableHTML += "<tr><th>" + this.populationCategories[x] + "</th><td style='text-align:right'>" + $.formatNumber(totalChartData[x], {format:"#,###", locale:"us"}) + "</td><td  style='color:" + colors[0] + "; text-align:right'>" + $.formatNumber((-1*maleChartData[x]), {format:"#,###", locale:"us"}) + "</td><td style='color:" + colors[1] + "; text-align:right'>" + $.formatNumber(femaleChartData[x], {format:"#,###", locale:"us"}) + "</td></tr>";
+		chartMax = Math.max( chartMax, Math.abs(maleChartData[x]), femaleChartData[x] );
 	}
 	
-	target.html( '<div style="height:' + (targetHeight + 800) + 'px"><div id="totalContainer" style="position:absolute; width: 50%; top:0px; left:0px; height:' + targetHeight + 'px;"></div>' +
-				 '<div id="sexesContainer" style="position:absolute; width: 50%; top:0px; right:0px; height:' + targetHeight + 'px;"></div>' +
-				 '<div id="tableContent" style="top:' + targetHeight + 'px; "><table width="100%">' + tableHTML + '</table></div></div>' );
+	//alert( chartMax );
+	
+	if ( chartMax <= 1000 ) {
+		chartMax = (Math.ceil( chartMax / 100)) * 100;
+	}
+	else if ( chartMax <= 5000 ) {
+		chartMax = (Math.ceil( chartMax / 500)) * 500;
+	}
+	else if ( chartMax <= 25000 ) {
+		chartMax = (Math.ceil( chartMax / 1000)) * 1000;
+	}
+	else if ( chartMax <= 50000 ) {
+		chartMax = (Math.ceil( chartMax / 5000)) * 5000;
+	}
+	else if ( chartMax <= 100000 ) {
+		chartMax = (Math.ceil( chartMax / 25000)) * 25000;
+	}
+	
+	target.html( '<div style="height:' + (targetHeight + 800) + 'px"><div class="chartContainer" style="height:' + targetHeight + 'px;"><div id="totalContainer" style="position:absolute; width: 50%; top:0px; left:0px; height:' + targetHeight + 'px;"></div>' +
+				 '<div id="sexesContainer" style="position:absolute; width: 50%; top:0px; right:0px; height:' + targetHeight + 'px;"></div></div>' +
+				 '<div id="tableContent" style="top:' + targetHeight + 'px; "><table width="100%"  class="table">' + tableHTML + '</table></div></div>' );
 		
 		var chart = new Highcharts.Chart({
-					chart: {
+					colors: ["#333"],
+      				chart: {
 						renderTo: 'totalContainer',
-						defaultSeriesType: 'column'
+						defaultSeriesType: 'column',
+						backgroundColor:'rgba(0, 0, 0, 0)'
 					},
 					title: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'County Population: ' + $.formatNumber(data.dpsf0010001, {format:"#,###", locale:"us"}) 
 					},
 					subtitle: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'source: 2010.census.gov'
 					},
+					
 					xAxis: {
-						categories: this.populationCategories
+						categories: this.populationCategories,
+						labels: {
+							 style: {
+								color: '#333'
+							 }
+						  },
+						  title: {
+							 style: {
+								color: '#333'
+							 }
+						  },
+					  lineColor: '#666',
+					  tickColor: '#666',
+				      gridLineColor: '#999'
 					},
 					yAxis: {
 						min: 0,
 						title: {
-							text: 'Population'
-						}
+							text: 'Population',
+							 style: {
+								color: '#333'
+							 }
+						},
+						labels: {
+							 style: {
+								color: '#333'
+							 }
+						  },
+					  lineColor: '#666',
+					  tickColor: '#666',
+				      gridLineColor: '#999'
 					},
 					legend: {
 						layout: 'vertical',
-						backgroundColor: '#FFFFFF',
 						align: 'left',
 						verticalAlign: 'top',
 						x: 0,
@@ -130,12 +188,13 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 					},
 					plotOptions: {
 						column: {
-						animation:false,
+							animation:false,
 							pointPadding: 0.2,
-							borderWidth: 0
+							borderWidth: border,
+							shadow: false,
+							borderColor: borderColor
 						}
-					}
-					,
+					},
 				        series: [{
 						name: 'Total',
 						data: totalChartData
@@ -143,46 +202,77 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 				});
 				
 	chart = new Highcharts.Chart({
+					colors: colors,
 					chart: {
 						renderTo: 'sexesContainer',
-						defaultSeriesType: 'bar'
+						defaultSeriesType: 'bar',
+						backgroundColor:'rgba(0, 0, 0, 0)'
 					},
 					title: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'Population by Sex'
 					},
 					subtitle: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'Source: 2010.census.gov'
 					},
 					xAxis: [{
 						categories: this.populationCategories,
 						reversed: false,
-						enabled:false
+						enabled:false,
+						labels: {
+							 style: {
+								color: '#333'
+							 }
+						  },
+						  title: {
+							 style: {
+								color: '#333'
+							 }
+						  },
+					  lineColor: '#666',
+					  tickColor: '#666',
+				      gridLineColor: '#999'
 					}],
 					yAxis: {
 						title: {
-							text: null
+							text: null,
+							 style: {
+								color: '#333'
+							 }
 						},
 						labels: {
 							formatter: function(){
 								return (Math.abs(this.value) / 1000) + 'K';
-							}
-						}
+							},
+							 style: {
+								color: '#000'
+							 }
+						},
+					  lineColor: '#666',
+					  tickColor: '#666',
+				      gridLineColor: '#999',
+				      min: -chartMax,
+				      max: chartMax
 					},
 					legend: {
-						layout: 'vertical',
-						backgroundColor: '#FFFFFF',
-						align: 'left',
-						verticalAlign: 'top',
-						x: $("#sexesContainer").width()-105,
-						y: 0,
-						floating: true,
-						shadow: true
+						enabled:false
 					},
 					
 					plotOptions: {
 						series: {
 							animation:false,
-							stacking: 'normal'
+							stacking: 'normal',
+							shadow: false
+						},
+						bar: {
+							borderWidth: border,
+							borderColor: borderColor,
+							shadow: false
 						}
 					},
 					
@@ -206,9 +296,11 @@ CensusVisualizer.prototype.renderPopulationData = function(target, data) {
 
 CensusVisualizer.prototype.renderRaceData = function(target, data) {
 	
-	var targetHeight = target.parent().height();
+	var targetHeight = 500;
 	
 	var colors = Highcharts.getOptions().colors;
+	//var colors = ["#30D0DD", "#C040FF", "#2F8030", "#FFC000", "#C0FF40", "#705FAF", "#FF0040", "#404000"];
+	//var colors = ["#CC3333", "#33CC33", "#3333CC", "#33CC33", "#CC33CC", "#CCCC33", "#CC5511", "#1155CC"];
 	var name = 'Population By Race';
 				
 	var innerCircleRawData = this.formatDataForChart( data, this.raceMajorDataFormat );
@@ -245,18 +337,23 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 		tableHTML += "<th>" + this.raceMinorCategories[x] + "</th><td  style='color:" + colors[this.raceMinorColorIndices[x]] + "; text-align:right'>" + $.formatNumber(outterCircleData[x].y, {format:"#,###", locale:"us"}) + "</td></tr>";
 	}
 	
-	target.html( '<div style="height:' + (targetHeight + 800) + 'px"><div id="chartContainer" style="position:absolute; width: 100%; top:0px; left:0px; height:' + targetHeight + 'px;"></div>' +
-				 '<div id="tableContent" style="top:' + targetHeight + 'px; "><table width="100%">' + tableHTML + '</table></div></div>' );
+	target.html( '<div style="height:' + (targetHeight + 800) + 'px"><div id="chartContainer" class="chartContainer" style="position:absolute; width: 100%; top:0px; left:0px; height:' + targetHeight + 'px;"></div>' +
+				 '<div id="tableContent" style="top:' + targetHeight + 'px; "><table width="100%" class="table">' + tableHTML + '</table></div></div>' );
 	
 	
 				
 				// Create the chart
 				chart = new Highcharts.Chart({
+					colors: colors,
 					chart: {
 						renderTo: 'chartContainer', 
-						type: 'pie'
+						type: 'pie',
+						backgroundColor:'rgba(0, 0, 0, 0)'
 					},
 					title: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'Population By Ethnicity/Race'
 					},
 					yAxis: {
@@ -267,7 +364,8 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 					plotOptions: {
 						pie: {
 							animation:false,
-							shadow: false
+							shadow: true,
+							borderColor: "#AAA"
 						}
 					},
 					tooltip: {
@@ -290,6 +388,7 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 						name: 'Minor Race Classification',
 						data: outterCircleData,
 						innerSize: '60%',
+						size: '75%',
 						dataLabels: {
 							formatter: function() {
 								return  '<b>'+ this.point.category +':</b> '+ $.formatNumber(this.y, {format:"#,###", locale:"us"});
@@ -303,10 +402,10 @@ CensusVisualizer.prototype.renderRaceData = function(target, data) {
 
 CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 	
-	var targetHeight = target.parent().height();
+	var targetHeight = 500;
 	
 	
-	var tableHTML = "<table width='100%'>";
+	var tableHTML = "<table width='100%' class='table'>";
 	
 	tableHTML += "<tr><th style='padding-left:00px;'>Total Households</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130001, {format:"#,###", locale:"us"})  + "</td></tr>";	
 	tableHTML += "<tr><th style='padding-left:40px;'>	Family households (families)</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0130002, {format:"#,###", locale:"us"}) + "</td></tr>";
@@ -337,7 +436,7 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 	tableHTML += "<tr><th style='padding-left:120px;'>    		Under 18 years</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120011, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		65 years and over</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120012, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Unmarried partner</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120013, {format:"#,###", locale:"us"}) + "</td></tr>";
-	tableHTML += "<tr><th style='padding-left:80px;'>   	In group quarters</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120014, {format:"#,###", locale:"us"}) + "</td></tr>";
+	tableHTML += "<tr><th style='padding-left:40px;'>   	In group quarters</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120014, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:80px;'>		Institutionalized population</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120015, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Male</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120016, {format:"#,###", locale:"us"}) + "</td></tr>";
 	tableHTML += "<tr><th style='padding-left:120px;'>     		Female</th><td style='text-align:right;'>" + $.formatNumber(data.dpsf0120017, {format:"#,###", locale:"us"}) + "</td></tr>";
@@ -350,8 +449,8 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 	
 	
 	
-	target.html( '<div style="height:' + (targetHeight + 1400) + 'px"><div id="totalContainer" style="position:absolute; width: 50%; top:0px; left:0px; height:' + targetHeight + 'px;; margin: 0 auto"></div>' +
-				 '<div id="familyContainer" style="position:absolute; width: 50%; top:0px; right:0px; height:' + targetHeight + 'px;; margin: 0 auto"></div>' +
+	target.html( '<div style="height:' + (targetHeight + 1400) + 'px"><div class="chartContainer" style="height:' + targetHeight + 'px;"><div id="totalContainer" style="position:absolute; width: 50%; top:0px; left:0px; height:' + targetHeight + 'px;; margin: 0 auto"></div>' +
+				 '<div id="familyContainer" style="position:absolute; width: 50%; top:0px; right:0px; height:' + targetHeight + 'px;; margin: 0 auto"></div></div>' +
 				 '<div id="tableContent" style="top:' + targetHeight + 'px; ">' + tableHTML + '</div></div>');
 				
 				chart = new Highcharts.Chart({
@@ -359,9 +458,13 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 						renderTo: 'totalContainer',
 						plotBackgroundColor: null,
 						plotBorderWidth: null,
-						plotShadow: false
+						plotShadow: false,
+						backgroundColor:'rgba(0, 0, 0, 0)'
 					},
 					title: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'Total Households: ' + $.formatNumber(data.dpsf0130001, {format:"#,###", locale:"us"})
 					},
 					tooltip: {
@@ -382,7 +485,8 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 									return '<b>'+ this.point.name +'</b><br/>'+ $.formatNumber(this.y, {format:"#,###", locale:"us"})  + '<br/>'+ $.formatNumber(this.percentage, {format:"#.00", locale:"us"})  +' %';
 								}
 							},
-            				size: "40%"
+            				size: "40%", 
+							borderColor: "#AAA"
 						}
 					},
 				    series: [{
@@ -397,9 +501,13 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 						renderTo: 'familyContainer',
 						plotBackgroundColor: null,
 						plotBorderWidth: null,
-						plotShadow: false
+						plotShadow: false,
+						backgroundColor:'rgba(0, 0, 0, 0)'
 					},
 					title: {
+				       	style: {
+				        	color: '#000',
+				        },
 						text: 'Family Households'
 					},
 					tooltip: {
@@ -420,7 +528,8 @@ CensusVisualizer.prototype.renderHouseholdData = function(target, data) {
 									return "<b>"+ this.point.name + "</b><br/>" + $.formatNumber(this.percentage, {format:"#.00", locale:"us"}) + " %";
 								}
 							},
-            				size: "40%"
+            				size: "40%", 
+							borderColor: "#AAA"
 						}
 					},
 				    series: [{

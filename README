@@ -35,11 +35,21 @@ All of the client-side application code is developed using HTML, JavaScript, and
 
 The following code libraries/resources were used in this application.   Resources for these libraries should be downloaded and included within the "libs" folder inside of the client source code folder.
 
-Twitter Bootstrap:
+jQuery 1.7.2:
+http://jquery.com
+file: libs/jquery/jquery-1.7.2.min.js
+
+iScroll 4:
+http://cubiq.org/iscroll-4
+libs/iscroll/iscroll.js
+
+Twitter Bootstrap (2.0):
 https://github.com/twitter/bootstrap
-file: bootstrap.css
-file: bootstrap-tabs.js
-file: bootstrap-modal.js
+file: libs/bootstrap/css/bootstrap.css
+file: libs/bootstrap/js/bootstrap-transition.js"></script>
+file: libs/bootstrap/js/bootstrap-tab.js
+file: libs/bootstrap/js/bootstrap-button.js
+file: libs/bootstrap/js/bootstrap-modal.js
 
 jQuery (version 1.7)
 http://code.jquery.com/jquery-1.7.1.min.js
@@ -64,7 +74,19 @@ http://code.google.com/p/jshashtable/
 http://code.google.com/p/jshashtable/downloads/detail?name=jshashtable-2.1.js
 file: jshashtable-2.1.js
 
-Also used within this application is the CSS3 approach for a rotating Activity Indicator, as ddemonstrated at: http://css3wizardry.com/2010/09/13/activity-indicator-with-css3/
+OpenLayers w/ Open Open Street Map
+http://openlayers.org/
+file: libs/openlayers/OpenLayers.js
+
+app-UI
+http://triceam.github.com/app-UI/
+file: libs/viewnavigator/viewnavigator.css
+file: libs/viewnavigator/viewnavigator.js
+file: libs/splitviewnavigator/splitviewnavigator.css
+file: libs/splitviewnavigator/splitviewnavigator.js
+
+
+Also used within this application is the CSS3 approach for a rotating Activity Indicator, as demonstrated at: http://css3wizardry.com/2010/09/13/activity-indicator-with-css3/
 
 
 SERVER-SIDE CODE
