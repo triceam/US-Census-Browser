@@ -3,8 +3,9 @@
 
 function ApplicationController() {
 	/* YOUR CONFIG VARIABLES HERE */
-	this.serverRoot = "http://your server";
-	this.serviceBase = "path/to/Services.cfc";
+	
+	this.serverRoot = "http://www.yourserver.com";
+	this.serviceBase = "/path/to/your/cfc/Services.cfc";
 	this.mapKey = "ABQIAAAAXjVXn0An0pUKzNWtB0K0ZxSEFrceJ9hFxzpuRIy1GzUBCsWR3xTi1ogOxu49s_A4IIH2Fu-a6BjrUQ";
 	
 	
@@ -163,12 +164,11 @@ ApplicationController.prototype.renderContent = function(loading) {
 	
 	if( loading )
 	{
-		//$("#activeContent").unbind( "resize" );
 		
 		//var mapURL = "http://maps.google.com/maps/api/staticmap?center=" + this.activeCounty.intptlat + "," + this.activeCounty.intptlon + "&zoom=8&size=200x84&maptype=roadmap&key=" + this.mapKey + "&sensor=true";
 		var mapURL = "http://staticmap.openstreetmap.de/staticmap.php?center=" + this.activeCounty.intptlat + "," + this.activeCounty.intptlon + "&zoom=8&size=200x84&maptype=mapnik";
       
-		html += "<div style='min-width:100%;min-height:100%'><div style='padding:10px;background:rgba(255,255,255,1)'>";
+		html += "<div style='min-width:100%;height:100%'><div style='padding:10px;background:rgba(255,255,255,1)'>";
 		html += "<img align='right' style='border: 1px solid #999999' src=\"" + mapURL + "\" />";
 		html += "<h1>" + this.activeCounty.name + ", " + this.activeCounty.stusab + "</h1>";
 		html += "<strong>Population:</strong> " + $.formatNumber(this.activeCounty.pop100, {format:"#,###", locale:"us"}) + "<br/>";
@@ -186,8 +186,9 @@ ApplicationController.prototype.renderContent = function(loading) {
 		this.contentView = { 
 			title: "Census Data for " + this.activeCounty.name + ", " + this.activeCounty.stusab,
 			view: $(html),
-			scroll: false,
-			backLabel: this.lastAction
+			scroll: true,
+			backLabel: this.lastAction,
+			maintainScrollPosition:false
 		}
 		
 		window.splitViewNavigator.replaceBodyView( this.contentView );
@@ -220,6 +221,11 @@ ApplicationController.prototype.renderContent = function(loading) {
 	//render data
 	else
 	{
+		/*if ( this.contentScroller ) {
+		    this.contentScroller.destroy();
+		    this.contentScroller= undefined;
+		}*/
+		
 		//$("#contentFooter").removeClass( "hidden" );
 		var detail = this.activeCountyDetails[ 0 ];
 		
@@ -248,26 +254,33 @@ ApplicationController.prototype.renderContent = function(loading) {
 					activeContent.css( "height", "100%" );
 					activeContent.html( '<div id="map" ></div>' );
 					
-					map = new OpenLayers.Map({
-						div: "map"
-					});
-	
-					var osm = new OpenLayers.Layer.OSM();
-					map.addLayers([osm]);
-					//map.zoomToMaxExtent();
-					//console.log( this.activeCounty, detail.intptlat, detail.intptlon );
-					
-					var lonlat = new OpenLayers.LonLat( detail.intptlon, detail.intptlat );
-					lonlat.transform( new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject() );
-					map.setCenter( lonlat, 11 );
-					
+					var map = new L.Map('map');
+
+                    var tileURL = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        attribution = 'Map data &copy; 2011 OpenStreetMap',
+                        layer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+                    
+                    map.setView(new L.LatLng(detail.intptlat, detail.intptlon), 10).addLayer(layer);
+            
 					break;
 				default:
 					censusVisualizer.renderPopulationData( activeContent, detail );
 					break;	
 			}
 			
-			window.splitViewNavigator.bodyViewNavigator.resetScroller();
+			/*if( this.activeDataView != "map" ) {
+			
+			    var self= this;
+			    setTimeout( function() {
+					self.contentScroller = new iScroll("activeContentWrapper");
+				}, 350 );
+			}*/
+			if( this.activeDataView == "map" ) {
+				window.splitViewNavigator.bodyViewNavigator.destroyScroller();
+			}
+			else {
+    			window.splitViewNavigator.bodyViewNavigator.resetScroller();
+			}
 		}
 		catch( e ) {
 			alert( e.toString() );
